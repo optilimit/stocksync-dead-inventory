@@ -278,28 +278,28 @@
 </head>
 <body onload="showFeedbackPopup()">
     <div class="container">
-        <h1><i class="fas fa-sync-alt"></i> StockSync</h1>
-        <div class="tool-description">Identify slow-moving or dead stock to optimize inventory and reduce waste.</div>
+        <h1><i class="fas fa-sync-alt"></i> stocksync</h1>
+        <div class="tool-description">find slow-moving or dead stock to optimize inventory and reduce waste</div>
         <div class="tabs">
-            <button class="tab-button active" onclick="showTab('manufacturing')">Manufacturing</button>
-            <button class="tab-button" onclick="showTab('food')">Food Industry</button>
+            <button class="tab-button active" onclick="showTab('manufacturing')">manufacturing</button>
+            <button class="tab-button" onclick="showTab('food')">food industry</button>
         </div>
         <div id="manufacturing" class="tab-content active">
             <div class="card">
                 <div class="input-group">
-                    <label for="uploadSales">Upload Sales Data (CSV)</label>
+                    <label for="uploadSales">upload sales data (csv)</label>
                     <input type="file" id="uploadSales" accept=".csv">
-                    <div class="input-description">Required columns: <code>stock_id</code>, <code>product_name</code>, <code>sales_date</code></div>
+                    <div class="input-description">csv file with columns: <code>stock_id</code>, <code>product_name</code>, <code>sales_date</code></div>
                 </div>
-                <button onclick="analyzeDeadStock()">Analyze Dead Stock</button>
+                <button onclick="analyzeDeadStock()">analyze dead stock</button>
                 <div id="results" class="results-section">
                     <table class="result-table">
                         <thead>
                             <tr>
-                                <th>Stock ID</th>
-                                <th>Product Name</th>
-                                <th>Days Since Last Sale</th>
-                                <th>Status</th>
+                                <th>stock id</th>
+                                <th>product name</th>
+                                <th>days since last sale</th>
+                                <th>status</th>
                             </tr>
                         </thead>
                         <tbody id="resultsBody"></tbody>
@@ -311,40 +311,40 @@
         <div id="food" class="tab-content">
             <div class="card">
                 <div class="input-group">
-                    <label for="uploadFoodData">Upload Inventory Data (CSV)</label>
-                    <input type="file" id="uploadFoodData" accept=".csv">
-                    <div class="input-description">Upload a CSV file containing inventory details. Required columns: <code>Product ID</code>, <code>Product Name</code>, <code>Quantity in Stock (liters/kg)</code>, <code>Expiration Date</code>, <code>Production Date</code>, <code>Date</code>, <code>Shelf Life (days)</code>, <code>Price per Unit</code></div>
+                    <label for="uploadSales">upload inventory data (csv)</label>
+                    <input type="file" id="uploadSales" accept=".csv">
+                    <div class="input-description">csv file with columns: <code>product_id</code>, <code>product_name</code>, <code>quantity_in_stock</code>, <code>expiration_date</code>, <code>production_date</code>, <code>sales_date</code>, <code>shelf_life_days</code>, <code>price_per_unit</code></div>
                 </div>
                 <div class="input-group">
-                    <label for="currentDate">Current Date</label>
-                    <input type="date" id="currentDate">
-                    <div class="input-description">Select the date to use as the reference for calculations (e.g., today’s date).</div>
+                    <label for="current_date">current date</label>
+                    <input type="date" id="current_date">
+                    <div class="input-description">pick a date to use for calculations (e.g., today’s date)</div>
                 </div>
                 <div class="input-group">
-                    <label for="noSalesThreshold">No Sales Threshold (days)</label>
-                    <input type="number" id="noSalesThreshold" min="1" placeholder="e.g., 60">
-                    <div class="input-description">Enter the number of days without sales to classify stock as stagnant (e.g., 60 days).</div>
+                    <label for="no_sales_threshold">no sales threshold (days)</label>
+                    <input type="number" id="no_sales_threshold" min="1" placeholder="e.g., 60">
+                    <div class="input-description">number of days without sales to mark stock as stagnant (e.g., 60 days)</div>
                 </div>
                 <div class="input-group">
-                    <label for="nearExpiryThreshold">Near Expiry Threshold (% of Shelf Life)</label>
-                    <select id="nearExpiryThreshold">
-                        <option value="" disabled selected>Select a percentage</option>
+                    <label for="near_expiry_threshold">near expiry threshold (% of shelf life)</label>
+                    <select id="near_expiry_threshold">
+                        <option value="" disabled selected>select a percentage</option>
                         <option value="5">5%</option>
                         <option value="10">10%</option>
                         <option value="15">15%</option>
                         <option value="20">20%</option>
                     </select>
-                    <div class="input-description">Choose the percentage of shelf life remaining to identify stock nearing expiry (e.g., 10% of shelf life).</div>
+                    <div class="input-description">percentage of shelf life left to mark stock as nearing expiry (e.g., 10%)</div>
                 </div>
-                <button onclick="analyzeFoodDeadStock()">Analyze Dead Stock</button>
+                <button onclick="analyzeFoodDeadStock()">analyze dead stock</button>
                 <div id="foodResults" class="results-section">
                     <table class="result-table">
                         <thead>
                             <tr>
-                                <th>Product ID</th>
-                                <th>Product Name</th>
-                                <th>Number of Dead Stock</th>
-                                <th>Dead Stock Reason</th>
+                                <th>product id</th>
+                                <th>product name</th>
+                                <th>number of dead stock</th>
+                                <th>dead stock reason</th>
                             </tr>
                         </thead>
                         <tbody id="foodResultsBody"></tbody>
@@ -355,17 +355,17 @@
         </div>
     </div>
     <button class="chat-icon" onclick="openFeedbackModal()"><i class="fas fa-comment"></i></button>
-    <div id="feedbackPopup" class="feedback-popup">Click the chat icon to share your feedback!</div>
+    <div id="feedbackPopup" class="feedback-popup">click the chat icon to share your feedback!</div>
     <div id="feedbackModal" class="chat-modal">
         <div class="chat-header">
-            StockSync Assistant
+            stocksync assistant
             <span class="chat-close" onclick="closeFeedbackModal()">×</span>
         </div>
         <div class="chat-messages" id="feedbackMessages"></div>
         <div id="feedbackOptions" class="chat-options"></div>
         <div class="chat-input" id="feedbackInput" style="display: none;">
-            <input type="text" id="feedbackText" placeholder="Enter your feedback...">
-            <button onclick="submitFeedback()">Send</button>
+            <input type="text" id="feedbackText" placeholder="enter your feedback...">
+            <button onclick="submitFeedback()">send</button>
         </div>
     </div>
     <script>
@@ -379,7 +379,7 @@
         function getMode(values) {
             const frequency = {};
             let maxFreq = 0;
-            let mode = values[0] || 'Unknown';
+            let mode = values[0] || 'unknown';
             values.forEach(value => {
                 frequency[value] = (frequency[value] || 0) + 1;
                 if (frequency[value] > maxFreq) {
@@ -387,7 +387,7 @@
                     mode = value;
                 }
             });
-            return mode || 'Unknown';
+            return mode || 'unknown';
         }
 
         function getMostRecentDate(dates) {
@@ -403,7 +403,7 @@
                     const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim()));
                     const headers = rows[0].map(h => h.trim());
                     if (!requiredHeaders.every(h => headers.includes(h))) {
-                        reject(new Error(`CSV must include ${requiredHeaders.join(', ')}. Column names are case-sensitive.`));
+                        reject(new Error(`csv must include ${requiredHeaders.join(', ')}. column names are case-sensitive.`));
                         return;
                     }
 
@@ -420,13 +420,13 @@
                         });
 
                     if (data.length > 1000) {
-                        reject(new Error('Upload limit exceeded. Maximum 1000 records allowed.'));
+                        reject(new Error('upload limit exceeded. maximum 1000 records allowed.'));
                         return;
                     }
 
                     resolve({ data, headers });
                 };
-                reader.onerror = () => reject(new Error('Error reading file.'));
+                reader.onerror = () => reject(new Error('error reading file.'));
                 reader.readAsText(file);
             });
         }
@@ -441,7 +441,7 @@
 
             const salesFile = document.getElementById('uploadSales').files[0];
             if (!salesFile) {
-                errorDiv.textContent = 'Please upload a sales data file.';
+                errorDiv.textContent = 'please upload a sales data file.';
                 return;
             }
 
@@ -475,7 +475,7 @@
                             <td>${stockId}</td>
                             <td>${data.product_name}</td>
                             <td>${daysSinceLastSale}</td>
-                            <td class="${isDead ? 'red' : ''}">${isDead ? 'Dead Stock' : 'Active'}</td>
+                            <td class="${isDead ? 'red' : ''}">${isDead ? 'dead stock' : 'active'}</td>
                         </tr>
                     `;
                 }
@@ -495,107 +495,107 @@
             resultsDiv.style.display = 'none';
             resultsBody.innerHTML = '';
 
-            const foodFile = document.getElementById('uploadFoodData').files[0];
-            const currentDateInput = document.getElementById('currentDate').value;
-            const noSalesThreshold = parseInt(document.getElementById('noSalesThreshold').value);
-            const nearExpiryThreshold = parseFloat(document.getElementById('nearExpiryThreshold').value) / 100;
+            const foodFile = document.getElementById('uploadSales').files[0];
+            const currentDateInput = document.getElementById('current_date').value;
+            const noSalesThreshold = parseInt(document.getElementById('no_sales_threshold').value);
+            const nearExpiryThreshold = parseFloat(document.getElementById('near_expiry_threshold').value) / 100;
 
             if (!foodFile) {
-                errorDiv.textContent = 'Please upload an inventory data file.';
+                errorDiv.textContent = 'please upload an inventory data file.';
                 return;
             }
             if (!currentDateInput) {
-                errorDiv.textContent = 'Please select a current date.';
+                errorDiv.textContent = 'please select a current date.';
                 return;
             }
             if (!noSalesThreshold || noSalesThreshold < 1) {
-                errorDiv.textContent = 'Please enter a valid no sales threshold (minimum 1 day).';
+                errorDiv.textContent = 'please enter a valid no sales threshold (minimum 1 day).';
                 return;
             }
             if (!nearExpiryThreshold) {
-                errorDiv.textContent = 'Please select a near expiry threshold percentage.';
+                errorDiv.textContent = 'please select a near expiry threshold percentage.';
                 return;
             }
 
             try {
-                const requiredHeaders = ['Product ID', 'Product Name', 'Quantity in Stock (liters/kg)', 'Expiration Date', 'Production Date', 'Date', 'Shelf Life (days)', 'Price per Unit'];
+                const requiredHeaders = ['product_id', 'product_name', 'quantity_in_stock', 'expiration_date', 'production_date', 'sales_date', 'shelf_life_days', 'price_per_unit'];
                 const { data } = await processCSVFile(foodFile, requiredHeaders);
                 const currentDate = new Date(currentDateInput);
 
                 // Calculate Days Since Production and Days Until Expiry
                 data.forEach(row => {
-                    const productionDate = new Date(row['Production Date']);
-                    const expirationDate = new Date(row['Expiration Date']);
-                    row['Days_Since_Production'] = Math.round((currentDate - productionDate) / (1000 * 60 * 60 * 24));
-                    row['Days_Until_Expiry'] = Math.round((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
+                    const productionDate = new Date(row['production_date']);
+                    const expirationDate = new Date(row['expiration_date']);
+                    row['days_since_production'] = Math.round((currentDate - productionDate) / (1000 * 60 * 60 * 24));
+                    row['days_until_expiry'] = Math.round((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
                 });
 
                 // Expired Stock
-                const expiredStock = data.filter(row => row['Days_Until_Expiry'] < 0 && parseFloat(row['Quantity in Stock (liters/kg)']) > 0)
-                    .map(row => ({ ...row, 'Dead_Stock_Reason': 'Expired' }));
+                const expiredStock = data.filter(row => row['days_until_expiry'] < 0 && parseFloat(row['quantity_in_stock']) > 0)
+                    .map(row => ({ ...row, 'dead_stock_reason': 'expired' }));
 
-                // Current Stock Snapshot (most recent by Date)
+                // Current Stock Snapshot (most recent by sales_date)
                 const productMap = {};
-                data.sort((a, b) => new Date(b['Date']) - new Date(a['Date'])).forEach(row => {
-                    if (!productMap[row['Product ID']]) {
-                        productMap[row['Product ID']] = { ...row };
+                data.sort((a, b) => new Date(b['sales_date']) - new Date(a['sales_date'])).forEach(row => {
+                    if (!productMap[row['product_id']]) {
+                        productMap[row['product_id']] = { ...row };
                     }
                 });
                 const currentStockSnapshot = Object.values(productMap).map(row => ({
-                    'Product ID': row['Product ID'],
-                    'Product Name': row['Product Name'],
-                    'Quantity in Stock (liters/kg)': row['Quantity in Stock (liters/kg)'],
-                    'Expiration Date': row['Expiration Date'],
-                    'Production Date': row['Production Date'],
-                    'Last_Sale_Date': row['Date'],
-                    'Shelf Life (days)': row['Shelf Life (days)'],
-                    'Price per Unit': row['Price per Unit'],
-                    'Days_Since_Last_Sale': Math.round((currentDate - new Date(row['Date'])) / (1000 * 60 * 60 * 24)),
-                    'Days_Until_Expiry': row['Days_Until_Expiry']
+                    'product_id': row['product_id'],
+                    'product_name': row['product_name'],
+                    'quantity_in_stock': row['quantity_in_stock'],
+                    'expiration_date': row['expiration_date'],
+                    'production_date': row['production_date'],
+                    'last_sale_date': row['sales_date'],
+                    'shelf_life_days': row['shelf_life_days'],
+                    'price_per_unit': row['price_per_unit'],
+                    'days_since_last_sale': Math.round((currentDate - new Date(row['sales_date'])) / (1000 * 60 * 60 * 24)),
+                    'days_until_expiry': row['days_until_expiry']
                 }));
 
                 // Stagnant Stock
                 const stagnantStock = currentStockSnapshot.filter(row => 
-                    parseFloat(row['Quantity in Stock (liters/kg)']) > 0 &&
-                    row['Days_Since_Last_Sale'] > noSalesThreshold &&
-                    row['Days_Until_Expiry'] >= 0
-                ).map(row => ({ ...row, 'Dead_Stock_Reason': 'Stagnant (No Recent Sales)' }));
+                    parseFloat(row['quantity_in_stock']) > 0 &&
+                    row['days_since_last_sale'] > noSalesThreshold &&
+                    row['days_until_expiry'] >= 0
+                ).map(row => ({ ...row, 'dead_stock_reason': 'stagnant (no recent sales)' }));
 
                 // Soon-to-Expire Stock
                 const soonToExpireStock = currentStockSnapshot.filter(row => 
-                    parseFloat(row['Quantity in Stock (liters/kg)']) > 0 &&
-                    row['Days_Until_Expiry'] >= 0 &&
-                    row['Days_Until_Expiry'] <= parseFloat(row['Shelf Life (days)']) * nearExpiryThreshold &&
-                    !expiredStock.some(exp => exp['Product ID'] === row['Product ID'])
-                ).map(row => ({ ...row, 'Dead_Stock_Reason': 'Nearing Expiry' }));
+                    parseFloat(row['quantity_in_stock']) > 0 &&
+                    row['days_until_expiry'] >= 0 &&
+                    row['days_until_expiry'] <= parseFloat(row['shelf_life_days']) * nearExpiryThreshold &&
+                    !expiredStock.some(exp => exp['product_id'] === row['product_id'])
+                ).map(row => ({ ...row, 'dead_stock_reason': 'nearing expiry' }));
 
                 // Combine and Summarize by Product
                 const deadStock = [...expiredStock, ...stagnantStock, ...soonToExpireStock];
                 const productSummary = {};
 
                 deadStock.forEach(row => {
-                    const productId = row['Product ID'];
+                    const productId = row['product_id'];
                     if (!productSummary[productId]) {
                         productSummary[productId] = {
-                            'Product ID': productId,
-                            'Product Name': row['Product Name'],
-                            'Number of Dead Stock': 0,
-                            'Dead Stock Reasons': new Set()
+                            'product_id': productId,
+                            'product_name': row['product_name'],
+                            'number_of_dead_stock': 0,
+                            'dead_stock_reasons': new Set()
                         };
                     }
-                    productSummary[productId]['Number of Dead Stock'] += 1;
-                    productSummary[productId]['Dead Stock Reasons'].add(row['Dead_Stock_Reason']);
+                    productSummary[productId]['number_of_dead_stock'] += 1;
+                    productSummary[productId]['dead_stock_reasons'].add(row['dead_stock_reason']);
                 });
 
                 // Generate Table
                 let tableHTML = '';
                 Object.values(productSummary).forEach(row => {
-                    const reasons = Array.from(row['Dead Stock Reasons']).join(', ');
+                    const reasons = Array.from(row['dead_stock_reasons']).join(', ');
                     tableHTML += `
                         <tr>
-                            <td>${row['Product ID']}</td>
-                            <td>${row['Product Name']}</td>
-                            <td>${row['Number of Dead Stock']}</td>
+                            <td>${row['product_id']}</td>
+                            <td>${row['product_name']}</td>
+                            <td>${row['number_of_dead_stock']}</td>
                             <td class="red">${reasons}</td>
                         </tr>
                     `;
@@ -610,7 +610,7 @@
 
         function openFeedbackModal() {
             document.getElementById('feedbackModal').style.display = 'flex';
-            document.getElementById('feedbackMessages').innerHTML = '<div class="bot-message">Hello! I’m StockSync Assistant. How can I assist you today? Please select a feedback type.</div>';
+            document.getElementById('feedbackMessages').innerHTML = '<div class="bot-message">hello! i’m stocksync assistant. how can i assist you today? please select a feedback type.</div>';
             showFeedbackOptions();
             document.getElementById('feedbackPopup').style.display = 'none';
         }
@@ -632,7 +632,7 @@
         }
 
         function showFeedbackOptions() {
-            const options = ['Feature Feedback', 'Bug Report', 'Suggestion'];
+            const options = ['feature feedback', 'bug report', 'suggestion'];
             const optionsDiv = document.getElementById('feedbackOptions');
             optionsDiv.innerHTML = '';
             options.forEach(option => {
@@ -647,20 +647,20 @@
         function selectFeedbackType(type) {
             document.getElementById('feedbackOptions').style.display = 'none';
             document.getElementById('feedbackInput').style.display = 'flex';
-            addMessage(`You selected: ${type}. Please enter your feedback.`, false);
+            addMessage(`you selected: ${type}. please enter your feedback.`, false);
             document.getElementById('feedbackText').focus();
         }
 
         function submitFeedback() {
             const feedbackText = document.getElementById('feedbackText').value.trim();
             if (!feedbackText) {
-                addMessage('Please enter some feedback before submitting.', false);
+                addMessage('please enter some feedback before submitting.', false);
                 return;
             }
 
             const messages = document.getElementById('feedbackMessages').getElementsByClassName('bot-message');
             const lastMessage = messages[messages.length - 1]?.textContent;
-            const selectedType = lastMessage ? lastMessage.match(/You selected: (.*)\. Please/)?.[1] : 'Feature Feedback';
+            const selectedType = lastMessage ? lastMessage.match(/you selected: (.*)\. please/)?.[1] : 'feature feedback';
 
             const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSc8oS9zypHSsDpyDW4rmV64JiNClIV4k7_slF-4xeK1DCx0Ug/formResponse';
             const feedbackTypeId = 'entry.919009780';
@@ -670,19 +670,19 @@
             formData.append(feedbackTypeId, selectedType);
             formData.append(feedbackTextId, feedbackText);
 
-            console.log('Submitting data:', { feedbackType: selectedType, feedbackText });
+            console.log('submitting data:', { feedbackType: selectedType, feedbackText });
             fetch(formUrl, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: formData
             })
             .then(() => {
-                addMessage('Thank you! Your feedback has been submitted.', false);
+                addMessage('thank you! your feedback has been submitted.', false);
                 setTimeout(closeFeedbackModal, 2000);
             })
             .catch(error => {
-                console.error('Feedback submission error:', error);
-                addMessage('Sorry, there was an issue submitting your feedback. Please try again later.', false);
+                console.error('feedback submission error:', error);
+                addMessage('sorry, there was an issue submitting your feedback. please try again later.', false);
             });
         }
 
