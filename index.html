@@ -62,7 +62,7 @@
             margin-bottom: 5px;
             display: block;
         }
-        input {
+        input, select {
             padding: 8px;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
@@ -70,7 +70,7 @@
             width: 100%;
             box-sizing: border-box;
         }
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #4a90e2;
         }
@@ -86,6 +86,30 @@
         }
         button:hover {
             background: linear-gradient(to right, #357abd, #4299e1);
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            background: #e2e8f0;
+            cursor: pointer;
+            font-size: 0.9em;
+            border-radius: 6px 6px 0 0;
+            margin-right: 5px;
+        }
+        .tab-button.active {
+            background: #4a90e2;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
         .results-section {
             margin-top: 15px;
@@ -256,27 +280,78 @@
     <div class="container">
         <h1><i class="fas fa-sync-alt"></i> StockSync</h1>
         <div class="tool-description">Identify slow-moving or dead stock to optimize inventory and reduce waste.</div>
-        <div class="card">
-            <div class="input-group">
-                <label for="uploadSales">Upload Sales Data (CSV)</label>
-                <input type="file" id="uploadSales" accept=".csv">
-                <div class="input-description">Required columns: <code>stock_id</code>, <code>product_name</code>, <code>sales_date</code></div>
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('manufacturing')">Manufacturing</button>
+            <button class="tab-button" onclick="showTab('food')">Food Industry</button>
+        </div>
+        <div id="manufacturing" class="tab-content active">
+            <div class="card">
+                <div class="input-group">
+                    <label for="uploadSales">Upload Sales Data (CSV)</label>
+                    <input type="file" id="uploadSales" accept=".csv">
+                    <div class="input-description">Required columns: <code>stock_id</code>, <code>product_name</code>, <code>sales_date</code></div>
+                </div>
+                <button onclick="analyzeDeadStock()">Analyze Dead Stock</button>
+                <div id="results" class="results-section">
+                    <table class="result-table">
+                        <thead>
+                            <tr>
+                                <th>Stock ID</th>
+                                <th>Product Name</th>
+                                <th>Days Since Last Sale</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+                </div>
+                <div id="error" class="error"></div>
             </div>
-            <button onclick="analyzeDeadStock()">Analyze Dead Stock</button>
-            <div id="results" class="results-section">
-                <table class="result-table">
-                    <thead>
-                        <tr>
-                            <th>Stock ID</th>
-                            <th>Product Name</th>
-                            <th>Days Since Last Sale</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultsBody"></tbody>
-                </table>
+        </div>
+        <div id="food" class="tab-content">
+            <div class="card">
+                <div class="input-group">
+                    <label for="uploadFoodData">Upload Inventory Data (CSV)</label>
+                    <input type="file" id="uploadFoodData" accept=".csv">
+                    <div class="input-description">Upload a CSV file containing inventory details. Required columns: <code>Product ID</code>, <code>Product Name</code>, <code>Quantity in Stock (liters/kg)</code>, <code>Expiration Date</code>, <code>Production Date</code>, <code>Date</code>, <code>Shelf Life (days)</code>, <code>Price per Unit</code></div>
+                </div>
+                <div class="input-group">
+                    <label for="currentDate">Current Date</label>
+                    <input type="date" id="currentDate">
+                    <div class="input-description">Select the date to use as the reference for calculations (e.g., today’s date).</div>
+                </div>
+                <div class="input-group">
+                    <label for="noSalesThreshold">No Sales Threshold (days)</label>
+                    <input type="number" id="noSalesThreshold" min="1" placeholder="e.g., 60">
+                    <div class="input-description">Enter the number of days without sales to classify stock as stagnant (e.g., 60 days).</div>
+                </div>
+                <div class="input-group">
+                    <label for="nearExpiryThreshold">Near Expiry Threshold (% of Shelf Life)</label>
+                    <select id="nearExpiryThreshold">
+                        <option value="" disabled selected>Select a percentage</option>
+                        <option value="5">5%</option>
+                        <option value="10">10%</option>
+                        <option value="15">15%</option>
+                        <option value="20">20%</option>
+                    </select>
+                    <div class="input-description">Choose the percentage of shelf life remaining to identify stock nearing expiry (e.g., 10% of shelf life).</div>
+                </div>
+                <button onclick="analyzeFoodDeadStock()">Analyze Dead Stock</button>
+                <div id="foodResults" class="results-section">
+                    <table class="result-table">
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Number of Dead Stock</th>
+                                <th>Dead Stock Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="foodResultsBody"></tbody>
+                    </table>
+                </div>
+                <div id="foodError" class="error"></div>
             </div>
-            <div id="error" class="error"></div>
         </div>
     </div>
     <button class="chat-icon" onclick="openFeedbackModal()"><i class="fas fa-comment"></i></button>
@@ -294,6 +369,13 @@
         </div>
     </div>
     <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+
         function getMode(values) {
             const frequency = {};
             let maxFreq = 0;
@@ -342,20 +424,7 @@
                         return;
                     }
 
-                    const stockIds = data.map(row => row.stock_id).filter(Boolean);
-                    const productNames = data.map(row => row.product_name).filter(Boolean);
-                    const salesDates = data.map(row => row.sales_date).filter(Boolean);
-                    const defaultStockId = getMode(stockIds);
-                    const defaultProductName = getMode(productNames);
-                    const defaultSalesDate = getMostRecentDate(salesDates);
-
-                    data.forEach(row => {
-                        row.stock_id = row.stock_id || defaultStockId;
-                        row.product_name = row.product_name || defaultProductName;
-                        row.sales_date = row.sales_date && !isNaN(new Date(row.sales_date)) ? row.sales_date : defaultSalesDate;
-                    });
-
-                    resolve(data);
+                    resolve({ data, headers });
                 };
                 reader.onerror = () => reject(new Error('Error reading file.'));
                 reader.readAsText(file);
@@ -377,11 +446,11 @@
             }
 
             try {
-                const salesData = await processCSVFile(salesFile, ['stock_id', 'product_name', 'sales_date']);
+                const { data } = await processCSVFile(salesFile, ['stock_id', 'product_name', 'sales_date']);
                 const today = new Date();
                 const products = {};
 
-                salesData.forEach(sale => {
+                data.forEach(sale => {
                     if (!products[sale.stock_id]) {
                         products[sale.stock_id] = {
                             product_name: sale.product_name,
@@ -410,6 +479,127 @@
                         </tr>
                     `;
                 }
+
+                resultsBody.innerHTML = tableHTML;
+                resultsDiv.style.display = 'block';
+            } catch (err) {
+                errorDiv.textContent = err.message;
+            }
+        }
+
+        async function analyzeFoodDeadStock() {
+            const errorDiv = document.getElementById('foodError');
+            const resultsDiv = document.getElementById('foodResults');
+            const resultsBody = document.getElementById('foodResultsBody');
+            errorDiv.textContent = '';
+            resultsDiv.style.display = 'none';
+            resultsBody.innerHTML = '';
+
+            const foodFile = document.getElementById('uploadFoodData').files[0];
+            const currentDateInput = document.getElementById('currentDate').value;
+            const noSalesThreshold = parseInt(document.getElementById('noSalesThreshold').value);
+            const nearExpiryThreshold = parseFloat(document.getElementById('nearExpiryThreshold').value) / 100;
+
+            if (!foodFile) {
+                errorDiv.textContent = 'Please upload an inventory data file.';
+                return;
+            }
+            if (!currentDateInput) {
+                errorDiv.textContent = 'Please select a current date.';
+                return;
+            }
+            if (!noSalesThreshold || noSalesThreshold < 1) {
+                errorDiv.textContent = 'Please enter a valid no sales threshold (minimum 1 day).';
+                return;
+            }
+            if (!nearExpiryThreshold) {
+                errorDiv.textContent = 'Please select a near expiry threshold percentage.';
+                return;
+            }
+
+            try {
+                const requiredHeaders = ['Product ID', 'Product Name', 'Quantity in Stock (liters/kg)', 'Expiration Date', 'Production Date', 'Date', 'Shelf Life (days)', 'Price per Unit'];
+                const { data } = await processCSVFile(foodFile, requiredHeaders);
+                const currentDate = new Date(currentDateInput);
+
+                // Calculate Days Since Production and Days Until Expiry
+                data.forEach(row => {
+                    const productionDate = new Date(row['Production Date']);
+                    const expirationDate = new Date(row['Expiration Date']);
+                    row['Days_Since_Production'] = Math.round((currentDate - productionDate) / (1000 * 60 * 60 * 24));
+                    row['Days_Until_Expiry'] = Math.round((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
+                });
+
+                // Expired Stock
+                const expiredStock = data.filter(row => row['Days_Until_Expiry'] < 0 && parseFloat(row['Quantity in Stock (liters/kg)']) > 0)
+                    .map(row => ({ ...row, 'Dead_Stock_Reason': 'Expired' }));
+
+                // Current Stock Snapshot (most recent by Date)
+                const productMap = {};
+                data.sort((a, b) => new Date(b['Date']) - new Date(a['Date'])).forEach(row => {
+                    if (!productMap[row['Product ID']]) {
+                        productMap[row['Product ID']] = { ...row };
+                    }
+                });
+                const currentStockSnapshot = Object.values(productMap).map(row => ({
+                    'Product ID': row['Product ID'],
+                    'Product Name': row['Product Name'],
+                    'Quantity in Stock (liters/kg)': row['Quantity in Stock (liters/kg)'],
+                    'Expiration Date': row['Expiration Date'],
+                    'Production Date': row['Production Date'],
+                    'Last_Sale_Date': row['Date'],
+                    'Shelf Life (days)': row['Shelf Life (days)'],
+                    'Price per Unit': row['Price per Unit'],
+                    'Days_Since_Last_Sale': Math.round((currentDate - new Date(row['Date'])) / (1000 * 60 * 60 * 24)),
+                    'Days_Until_Expiry': row['Days_Until_Expiry']
+                }));
+
+                // Stagnant Stock
+                const stagnantStock = currentStockSnapshot.filter(row => 
+                    parseFloat(row['Quantity in Stock (liters/kg)']) > 0 &&
+                    row['Days_Since_Last_Sale'] > noSalesThreshold &&
+                    row['Days_Until_Expiry'] >= 0
+                ).map(row => ({ ...row, 'Dead_Stock_Reason': 'Stagnant (No Recent Sales)' }));
+
+                // Soon-to-Expire Stock
+                const soonToExpireStock = currentStockSnapshot.filter(row => 
+                    parseFloat(row['Quantity in Stock (liters/kg)']) > 0 &&
+                    row['Days_Until_Expiry'] >= 0 &&
+                    row['Days_Until_Expiry'] <= parseFloat(row['Shelf Life (days)']) * nearExpiryThreshold &&
+                    !expiredStock.some(exp => exp['Product ID'] === row['Product ID'])
+                ).map(row => ({ ...row, 'Dead_Stock_Reason': 'Nearing Expiry' }));
+
+                // Combine and Summarize by Product
+                const deadStock = [...expiredStock, ...stagnantStock, ...soonToExpireStock];
+                const productSummary = {};
+
+                deadStock.forEach(row => {
+                    const productId = row['Product ID'];
+                    if (!productSummary[productId]) {
+                        productSummary[productId] = {
+                            'Product ID': productId,
+                            'Product Name': row['Product Name'],
+                            'Number of Dead Stock': 0,
+                            'Dead Stock Reasons': new Set()
+                        };
+                    }
+                    productSummary[productId]['Number of Dead Stock'] += 1;
+                    productSummary[productId]['Dead Stock Reasons'].add(row['Dead_Stock_Reason']);
+                });
+
+                // Generate Table
+                let tableHTML = '';
+                Object.values(productSummary).forEach(row => {
+                    const reasons = Array.from(row['Dead Stock Reasons']).join(', ');
+                    tableHTML += `
+                        <tr>
+                            <td>${row['Product ID']}</td>
+                            <td>${row['Product Name']}</td>
+                            <td>${row['Number of Dead Stock']}</td>
+                            <td class="red">${reasons}</td>
+                        </tr>
+                    `;
+                });
 
                 resultsBody.innerHTML = tableHTML;
                 resultsDiv.style.display = 'block';
