@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -343,7 +304,7 @@
             console.log('Script loaded, defining functions');
 
             const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSepL7Vn05g1RJtAMSIfOYs7mQcK4ZKZRRpD3OdeUzACMJVcIw/formResponse';
-            const FORM_ENTRY_FIELD = 'entry.118636025'; // Updated to correct Entry ID
+            const FORM_ENTRY_FIELD = 'entry.118636025';
 
             let columns = [];
             let computedFields = [];
@@ -424,29 +385,43 @@
 
             async function saveToGoogleForm(jsonContent) {
                 const errorDiv = document.getElementById('error');
-                try {
-                    // Encode JSON to prevent issues with special characters
-                    const encodedJson = encodeURIComponent(jsonContent);
-                    const formData = new FormData();
-                    formData.append(FORM_ENTRY_FIELD, encodedJson);
-                    console.log('Submitting form data:', FORM_ENTRY_FIELD, encodedJson);
+                const maxRetries = 1;
+                let attempt = 0;
 
-                    const response = await fetch(GOOGLE_FORM_URL, {
-                        method: 'POST',
-                        body: formData,
-                        mode: 'no-cors'
-                    });
-                    console.log('Data sent to Google Form successfully');
-                    return true;
-                } catch (e) {
-                    console.error('Google Form submission error:', e.message);
-                    errorDiv.textContent = `Failed to save to Google Form: ${e.message}. Ensure form accepts anonymous submissions. Downloaded JSON locally.`;
-                    return false;
+                while (attempt <= maxRetries) {
+                    try {
+                        const encodedJson = encodeURIComponent(jsonContent);
+                        const formData = new FormData();
+                        formData.append(FORM_ENTRY_FIELD, encodedJson);
+                        console.log(`Attempt ${attempt + 1}: Submitting form data:`, FORM_ENTRY_FIELD, encodedJson);
+
+                        const response = await fetch(GOOGLE_FORM_URL, {
+                            method: 'POST',
+                            body: formData,
+                            mode: 'cors'
+                        });
+                        console.log(`Attempt ${attempt + 1}: Response status:`, response.status);
+                        if (response.ok || response.status === 0) {
+                            console.log('Data sent to Google Form successfully');
+                            return true;
+                        } else {
+                            throw new Error(`HTTP error: ${response.status}`);
+                        }
+                    } catch (e) {
+                        console.error(`Attempt ${attempt + 1}: Google Form submission error:`, e.message);
+                        attempt++;
+                        if (attempt > maxRetries) {
+                            errorDiv.textContent = `Failed to save to Google Form after ${maxRetries + 1} attempts: ${e.message}. Check form settings (anonymous submissions, accepting responses) and Entry ID (${FORM_ENTRY_FIELD}). Downloaded JSON locally.`;
+                            return false;
+                        }
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
                 }
+                return false;
             }
 
             function updateColumnSelectors() {
-                console.log('updateColumnSelectors called');
+                console.log('updateColumnSelectors called, current scenarioPatterns:', JSON.stringify(scenarioPatterns));
                 const errorDiv = document.getElementById('error');
                 columns = Array.from(document.getElementsByClassName('column-row')).map(row => ({
                     name: row.querySelector('.column-name').value.trim(),
@@ -460,28 +435,26 @@
                     return;
                 }
 
+                // Store current pattern inputs to preserve them
+                const existingPatterns = Array.from(document.getElementsByClassName('scenario-row')).map(row => ({
+                    column: row.querySelector('.pattern-column')?.value || '',
+                    type: row.querySelector('.pattern-type')?.value || '',
+                    mean: row.querySelector('.pattern-mean')?.value.trim() || '',
+                    sd: row.querySelector('.pattern-sd')?.value.trim() || '',
+                    values: row.querySelector('.pattern-values')?.value.trim() || '',
+                    min: row.querySelector('.pattern-min')?.value.trim() || '',
+                    max: row.querySelector('.pattern-max')?.value.trim() || ''
+                }));
+
                 computedFields = Array.from(document.getElementsByClassName('computed-field-row')).map(row => ({
                     name: row.querySelector('.computed-field-name').value.trim(),
                     type: row.querySelector('.computed-field-type').value,
                     formula: row.querySelector('.computed-field-formula').value.trim()
                 })).filter(field => field.name && field.formula);
 
-                scenarioPatterns = Array.from(document.getElementsByClassName('scenario-row')).map(row => {
-                    const column = row.querySelector('.pattern-column').value;
-                    const type = row.querySelector('.pattern-type').value;
-                    const pattern = { column, type };
-                    if (type === 'normal') {
-                        pattern.mean = row.querySelector('.pattern-mean')?.value.trim();
-                        pattern.sd = row.querySelector('.pattern-sd')?.value.trim();
-                    } else if (type === 'categorical') {
-                        pattern.values = row.querySelector('.pattern-values')?.value.trim();
-                    } else if (type === 'uniform') {
-                        pattern.min = row.querySelector('.pattern-min')?.value.trim();
-                        pattern.max = row.querySelector('.pattern-max')?.value.trim();
-                    }
-                    return pattern;
-                }).filter(pattern => pattern.column);
+                scenarioPatterns = existingPatterns.filter(pattern => pattern.column && columns.some(col => col.name === pattern.column));
 
+                // Update product ID and name selectors
                 const selectors = ['product_id_col', 'product_name_col'];
                 selectors.forEach(selector => {
                     const select = document.getElementById(selector);
@@ -500,9 +473,12 @@
                     });
                 });
 
-                const patternColumns = document.getElementsByClassName('pattern-column');
-                Array.from(patternColumns).forEach(select => {
-                    const currentValue = select.value;
+                // Update pattern column selectors and restore inputs
+                const patternRows = document.getElementsByClassName('scenario-row');
+                Array.from(patternRows).forEach((row, index) => {
+                    const currentPattern = existingPatterns[index] || {};
+                    const select = row.querySelector('.pattern-column');
+                    const currentValue = currentPattern.column;
                     select.innerHTML = '<option value="" disabled selected>Select column</option>';
                     columns.forEach(col => {
                         const option = document.createElement('option');
@@ -511,7 +487,11 @@
                         if (col.name === currentValue) option.selected = true;
                         select.appendChild(option);
                     });
-                    updatePatternInputs(select);
+                    const patternTypeSelect = row.querySelector('.pattern-type');
+                    if (currentPattern.type) {
+                        patternTypeSelect.value = currentPattern.type;
+                    }
+                    updatePatternInputs(row, currentPattern);
                 });
 
                 if (columns.length === 0) {
@@ -519,6 +499,7 @@
                 } else {
                     errorDiv.textContent = '';
                 }
+                console.log('updateColumnSelectors finished, updated scenarioPatterns:', JSON.stringify(scenarioPatterns));
             }
 
             function addColumn() {
@@ -564,14 +545,14 @@
                         <option value="uniform">Uniform (dates only)</option>
                     </select>
                     <div class="pattern-inputs">
-                        <input type="number" class="pattern-mean" placeholder="Mean (e.g., 50)" required>
-                        <input type="number" class="pattern-sd" placeholder="Std Dev (e.g., 10)" required>
+                        <input type="number" class="pattern-mean" placeholder="Mean (e.g., 50)">
+                        <input type="number" class="pattern-sd" placeholder="Std Dev (e.g., 10)">
                     </div>
                     <span class="remove-btn">&times;</span>
                 `;
                 patternsDiv.appendChild(patternRow);
-                patternRow.querySelector('.pattern-column').addEventListener('change', () => updatePatternInputs(patternRow.querySelector('.pattern-column')));
-                patternRow.querySelector('.pattern-type').addEventListener('change', () => updatePatternInputs(patternRow.querySelector('.pattern-type')));
+                patternRow.querySelector('.pattern-column').addEventListener('change', () => updatePatternInputs(patternRow));
+                patternRow.querySelector('.pattern-type').addEventListener('change', () => updatePatternInputs(patternRow));
                 patternRow.querySelector('.remove-btn').addEventListener('click', () => {
                     patternRow.remove();
                     updateColumnSelectors();
@@ -618,11 +599,10 @@
                 updateColumnSelectors();
             }
 
-            function updatePatternInputs(select) {
-                const row = select.parentElement;
+            function updatePatternInputs(row, existingPattern = {}) {
                 const columnName = row.querySelector('.pattern-column').value;
-                const column = columns.find(c => c.name === columnName);
                 const patternType = row.querySelector('.pattern-type').value;
+                const column = columns.find(c => c.name === columnName);
                 const patternInputDiv = row.querySelector('.pattern-inputs');
                 if (!column) {
                     patternInputDiv.innerHTML = '';
@@ -630,17 +610,17 @@
                 }
                 if (column.type === 'date' || patternType === 'uniform') {
                     patternInputDiv.innerHTML = `
-                        <input type="text" class="pattern-min" placeholder="Min date (optional)">
-                        <input type="text" class="pattern-max" placeholder="Max date (optional)">
+                        <input type="text" class="pattern-min" placeholder="Min date (optional)" value="${existingPattern.min || ''}">
+                        <input type="text" class="pattern-max" placeholder="Max date (optional)" value="${existingPattern.max || ''}">
                     `;
                 } else if (patternType === 'normal' && column.type === 'number') {
                     patternInputDiv.innerHTML = `
-                        <input type="number" class="pattern-mean" placeholder="Mean (e.g., 50)" required>
-                        <input type="number" class="pattern-sd" placeholder="Std Dev (e.g., 10)" required>
+                        <input type="number" class="pattern-mean" placeholder="Mean (e.g., 50)" value="${existingPattern.mean || ''}">
+                        <input type="number" class="pattern-sd" placeholder="Std Dev (e.g., 10)" value="${existingPattern.sd || ''}">
                     `;
                 } else if (patternType === 'categorical' && (column.type === 'id' || column.type === 'name')) {
                     patternInputDiv.innerHTML = `
-                        <input type="text" class="pattern-values" placeholder="Values:Probabilities (e.g., A:0.5,B:0.3,C:0.2)" required>
+                        <input type="text" class="pattern-values" placeholder="Values:Probabilities (e.g., A:0.5,B:0.3,C:0.2)" value="${existingPattern.values || ''}">
                     `;
                 } else {
                     patternInputDiv.innerHTML = '<span style="color: red;">Invalid pattern for column type</span>';
@@ -713,16 +693,16 @@
                     if (pattern.type === 'normal' && column.type === 'number') {
                         const mean = parseFloat(pattern.mean);
                         const sd = parseFloat(pattern.sd);
-                        if (!pattern.mean || isNaN(mean)) {
+                        if (pattern.mean && (isNaN(mean) || pattern.mean.trim() === '')) {
                             errorDiv.textContent = `Mean for column ${pattern.column} must be a valid number.`;
                             return false;
                         }
-                        if (!pattern.sd || isNaN(sd) || sd <= 0) {
+                        if (pattern.sd && (isNaN(sd) || sd <= 0 || pattern.sd.trim() === '')) {
                             errorDiv.textContent = `Standard deviation for column ${pattern.column} must be a positive number.`;
                             return false;
                         }
                     } else if (pattern.type === 'categorical' && (column.type === 'id' || column.type === 'name')) {
-                        if (!pattern.values) {
+                        if (!pattern.values || pattern.values.trim() === '') {
                             errorDiv.textContent = `Categorical values for column ${pattern.column} cannot be empty.`;
                             return false;
                         }
@@ -915,7 +895,6 @@
                     }
                 });
 
-                // Save user inputs as JSON to Google Form
                 const scenarioInputs = {
                     name: scenarioName,
                     rowCount: rowCount,
@@ -933,7 +912,6 @@
                 const jsonContent = JSON.stringify(scenarioInputs, null, 2);
                 const saved = await saveToGoogleForm(jsonContent);
                 if (!saved) {
-                    // Fallback: Download JSON locally
                     const blob = new Blob([jsonContent], { type: 'application/json' });
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
