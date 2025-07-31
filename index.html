@@ -335,11 +335,14 @@
             }
 
             function validateFormulaColumns(formula, availableColumns) {
+                console.log('Validating formula:', formula, 'with availableColumns:', availableColumns.map(c => c.name));
                 const reservedWords = ['or', 'and', 'true', 'false', 'null', 'undefined', 'NaN'];
                 const cleanFormula = preprocessFormula(formula);
                 const columnsInFormula = cleanFormula.match(/[a-zA-Z_][a-zA-Z0-9_]*/g) || [];
                 for (let col of columnsInFormula) {
-                    if (!reservedWords.includes(col) && !availableColumns.some(c => c.name === col) && !col.startsWith('days_since_')) {
+                    if (!reservedWords.includes(col) && 
+                        !availableColumns.some(c => c.name === col) && 
+                        !col.startsWith('days_since_')) {
                         return `Formula references undefined column: ${col}`;
                     }
                 }
@@ -421,7 +424,7 @@
             }
 
             function updateColumnSelectors() {
-                console.log('updateColumnSelectors called, current scenarioPatterns:', JSON.stringify(scenarioPatterns));
+                console.log('updateColumnSelectors called, current computedFields:', JSON.stringify(computedFields));
                 const errorDiv = document.getElementById('error');
                 columns = Array.from(document.getElementsByClassName('column-row')).map(row => ({
                     name: row.querySelector('.column-name').value.trim(),
@@ -435,7 +438,7 @@
                     return;
                 }
 
-                // Store current pattern inputs to preserve them
+                // Store current pattern and computed field inputs to preserve them
                 const existingPatterns = Array.from(document.getElementsByClassName('scenario-row')).map(row => ({
                     column: row.querySelector('.pattern-column')?.value || '',
                     type: row.querySelector('.pattern-type')?.value || '',
@@ -446,11 +449,12 @@
                     max: row.querySelector('.pattern-max')?.value.trim() || ''
                 }));
 
-                computedFields = Array.from(document.getElementsByClassName('computed-field-row')).map(row => ({
-                    name: row.querySelector('.computed-field-name').value.trim(),
-                    type: row.querySelector('.computed-field-type').value,
-                    formula: row.querySelector('.computed-field-formula').value.trim()
-                })).filter(field => field.name && field.formula);
+                computedFields = Array.from(document.getElementsByClassName('computed-field-row')).map(row => {
+                    const name = row.querySelector('.computed-field-name')?.value.trim();
+                    const type = row.querySelector('.computed-field-type')?.value;
+                    const formula = row.querySelector('.computed-field-formula')?.value.trim();
+                    return name && formula ? { name, type, formula } : null;
+                }).filter(field => field);
 
                 scenarioPatterns = existingPatterns.filter(pattern => pattern.column && columns.some(col => col.name === pattern.column));
 
@@ -499,7 +503,7 @@
                 } else {
                     errorDiv.textContent = '';
                 }
-                console.log('updateColumnSelectors finished, updated scenarioPatterns:', JSON.stringify(scenarioPatterns));
+                console.log('updateColumnSelectors finished, updated computedFields:', JSON.stringify(computedFields));
             }
 
             function addColumn() {
@@ -575,6 +579,7 @@
                 `;
                 computedFieldsDiv.appendChild(computedFieldRow);
                 computedFieldRow.querySelector('.computed-field-name').addEventListener('input', updateColumnSelectors);
+                computedFieldRow.querySelector('.computed-field-formula').addEventListener('input', updateColumnSelectors);
                 computedFieldRow.querySelector('.remove-btn').addEventListener('click', () => {
                     computedFieldRow.remove();
                     updateColumnSelectors();
@@ -735,7 +740,12 @@
                     }
                 }
 
+                // Validate computed fields
                 for (let field of computedFields) {
+                    if (!field.name) {
+                        errorDiv.textContent = `Computed field name cannot be empty.`;
+                        return false;
+                    }
                     const error = validateFormulaColumns(field.formula, columns);
                     if (error) {
                         errorDiv.textContent = `Computed field ${field.name}: ${error}`;
@@ -743,6 +753,7 @@
                     }
                 }
 
+                // Validate conditions
                 const conditions = Array.from(document.getElementsByClassName('condition-row')).map(row => ({
                     formula: row.querySelector('.condition-formula').value.trim(),
                     suggestion: row.querySelector('.condition-suggestion').value.trim() || 'Dead stock condition'
