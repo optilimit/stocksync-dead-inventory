@@ -9,66 +9,100 @@
     <style>
         body {
             font-family: 'Poppins', Arial, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: 20px auto;
             padding: 15px;
-            background-color: #f0f4ff;
-            color: #4a5568;
-            position: relative;
-            padding-bottom: 60px;
+            background-color: #f7fafc;
+            color: #2d3748;
         }
         h1 {
             text-align: center;
             color: #2b6cb0;
-            font-size: 1.5em;
+            font-size: 1.8em;
             font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
         h1 i {
             color: #2b6cb0;
-            font-size: 1.2em;
+            font-size: 1.3em;
+        }
+        h3 {
+            font-size: 1.1em;
+            color: #2b6cb0;
+            margin: 15px 0 8px;
         }
         .tool-description {
             text-align: center;
             color: #718096;
-            font-size: 0.85em;
-            margin-bottom: 15px;
+            font-size: 0.9em;
+            margin-bottom: 20px;
         }
-        .input-description {
-            color: #718096;
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 180px;
+            background-color: #2d3748;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 6px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -90px;
+            opacity: 0;
+            transition: opacity 0.3s;
             font-size: 0.8em;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            text-align: left;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
         }
         .card {
             background-color: #ffffff;
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 8px;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
         }
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+        }
+        .date-range-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .date-range-group .input-group {
+            flex: 1;
+            min-width: 150px;
         }
         label {
-            font-weight: 600;
+            font-weight: 500;
             color: #1a365d;
-            font-size: 0.9em;
-            margin-bottom: 5px;
+            font-size: 0.85em;
+            margin-bottom: 4px;
             display: block;
         }
         input, select {
             padding: 8px;
             border: 1px solid #e2e8f0;
-            border-radius: 6px;
+            border-radius: 5px;
             font-size: 0.9em;
             width: 100%;
             box-sizing: border-box;
+            transition: border-color 0.2s;
         }
         input:focus, select:focus {
             outline: none;
@@ -77,39 +111,67 @@
         button {
             background: linear-gradient(to right, #4a90e2, #63b3ed);
             color: white;
-            padding: 10px;
+            padding: 8px;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 0.9em;
+            font-size: 0.85em;
             width: 100%;
+            transition: background 0.2s;
         }
         button:hover {
             background: linear-gradient(to right, #357abd, #4299e1);
         }
-        .tabs {
-            display: flex;
-            justify-content: center;
+        .column-builder, .scenario-builder, .computed-field-builder, .condition-builder {
             margin-bottom: 15px;
         }
-        .tab-button {
-            padding: 10px 20px;
-            border: none;
-            background: #e2e8f0;
+        .column-row, .scenario-row, .computed-field-row, .condition-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .column-row select, .column-row input,
+        .scenario-row select, .scenario-row input,
+        .computed-field-row input,
+        .condition-row input {
+            flex: 1;
+            min-width: 100px;
+        }
+        .remove-btn {
+            font-size: 1.2em;
+            color: #e53e3e;
             cursor: pointer;
+            background: none;
+            border: none;
+            padding: 2px 8px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .remove-btn:hover {
+            color: #c53030;
+        }
+        .scenario-section {
+            margin-top: 15px;
+        }
+        .scenario-list {
+            margin-top: 10px;
+        }
+        .scenario-item {
+            background: #edf2f7;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 0.9em;
-            border-radius: 6px 6px 0 0;
-            margin-right: 5px;
         }
-        .tab-button.active {
-            background: #4a90e2;
-            color: white;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
+        .scenario-item button {
+            width: auto;
+            padding: 5px 10px;
+            font-size: 0.8em;
         }
         .results-section {
             margin-top: 15px;
@@ -118,6 +180,7 @@
         .result-table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 0.9em;
         }
         .result-table th, .result-table td {
             border: 1px solid #e2e8f0;
@@ -127,6 +190,7 @@
         .result-table th {
             background: #e6f0fa;
             color: #2b6cb0;
+            font-weight: 500;
         }
         .result-table .red {
             background: #fed7d7;
@@ -134,565 +198,794 @@
         }
         .error {
             color: #e53e3e;
-            font-size: 0.9em;
+            font-size: 0.85em;
             text-align: center;
             margin-top: 10px;
         }
-        .chat-icon {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: linear-gradient(to right, #4a90e2, #63b3ed);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            font-size: 1.5em;
+        .pattern-inputs, .range-inputs {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: transform 0.2s;
-        }
-        .chat-icon:hover {
-            transform: scale(1.1);
-        }
-        .feedback-popup {
-            display: none;
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 200px;
-            padding: 10px;
-            background-color: #ffffff;
-            border-radius: 6px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            text-align: center;
-            font-size: 0.9em;
-            color: #2d3748;
-            animation: fadeIn 0.5s ease-in;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .chat-modal {
-            display: none;
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 300px;
-            height: 400px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .chat-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 1.2em;
-            color: #718096;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .chat-close:hover {
-            color: #e53e3e;
-        }
-        .chat-header {
-            background: linear-gradient(to right, #4a90e2, #63b3ed);
-            color: white;
-            padding: 10px;
-            font-weight: 600;
-            text-align: center;
-            position: relative;
-        }
-        .chat-messages {
-            flex: 1;
-            padding: 10px;
-            overflow-y: auto;
-            background-color: #f8fafc;
-        }
-        .message {
-            margin: 5px 0;
-            padding: 8px;
-            border-radius: 5px;
-            max-width: 70%;
-        }
-        .bot-message {
-            background-color: #e6f0fa;
-            align-self: flex-start;
-        }
-        .user-message {
-            background-color: #4a90e2;
-            color: white;
-            align-self: flex-end;
-        }
-        .chat-options {
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
             gap: 5px;
         }
-        .chat-option {
-            background: #edf2f7;
-            padding: 8px;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-            transition: background 0.2s;
+        .pattern-inputs input {
+            width: 50%;
         }
-        .chat-option:hover {
-            background: #d1e0f5;
-        }
-        .chat-input {
-            display: flex;
-            padding: 10px;
-            background-color: #ffffff;
-            border-top: 1px solid #e2e8f0;
-        }
-        .chat-input input {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #e2e8f0;
-            border-radius: 5px;
-            margin-right: 10px;
-        }
-        .chat-input button {
-            width: 70px;
-            padding: 8px;
+        .formula-input, .pattern-values {
+            width: 100%;
         }
         @media (max-width: 600px) {
-            body { padding: 10px; max-width: 100%; padding-bottom: 50px; }
-            .chat-icon { bottom: 10px; right: 10px; width: 40px; height: 40px; font-size: 1.2em; }
-            .feedback-popup { width: 180px; bottom: 70px; right: 10px; }
-            .chat-modal { width: 90%; right: 5%; }
+            body { padding: 10px; max-width: 100%; }
+            .column-row, .scenario-row, .computed-field-row, .condition-row, .date-range-group {
+                flex-direction: column;
+            }
+            .remove-btn { font-size: 1.1em; padding: 2px 6px; }
+            .date-range-group .input-group { min-width: 100%; }
         }
     </style>
 </head>
-<body onload="showFeedbackPopup()">
+<body>
     <div class="container">
-        <h1><i class="fas fa-sync-alt"></i> stocksync</h1>
-        <div class="tool-description">find slow-moving or dead stock to optimize inventory and reduce waste</div>
-        <div class="tabs">
-            <button class="tab-button active" onclick="showTab('manufacturing')">manufacturing</button>
-            <button class="tab-button" onclick="showTab('food')">food industry</button>
-        </div>
-        <div id="manufacturing" class="tab-content active">
-            <div class="card">
+        <h1><i class="fas fa-sync-alt"></i> StockSync</h1>
+        <div class="tool-description">Create and test scenarios with probabilistic data to explore dead stock</div>
+        <div class="card">
+            <div class="column-builder">
+                <h3>Step 1: Define Data Structure</h3>
                 <div class="input-group">
-                    <label for="uploadSales">upload sales data (csv)</label>
-                    <input type="file" id="uploadSales" accept=".csv">
-                    <div class="input-description">csv file with columns: <code>stock_id</code>, <code>product_name</code>, <code>sales_date</code></div>
+                    <label for="row_count" class="tooltip">Number of Products<span class="tooltiptext">How many product rows to generate (1-1000)</span></label>
+                    <input type="number" id="row_count" min="1" max="1000" placeholder="e.g., 100">
                 </div>
-                <button onclick="analyzeDeadStock()">analyze dead stock</button>
-                <div id="results" class="results-section">
-                    <table class="result-table">
-                        <thead>
-                            <tr>
-                                <th>stock id</th>
-                                <th>product name</th>
-                                <th>days since last sale</th>
-                                <th>status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsBody"></tbody>
-                    </table>
+                <div class="date-range-group">
+                    <div class="input-group">
+                        <label for="date_range_start" class="tooltip">Date Range Start<span class="tooltiptext">Earliest date for generated dates</span></label>
+                        <input type="date" id="date_range_start">
+                    </div>
+                    <div class="input-group">
+                        <label for="date_range_end" class="tooltip">Date Range End<span class="tooltiptext">Latest date for generated dates</span></label>
+                        <input type="date" id="date_range_end">
+                    </div>
                 </div>
-                <div id="error" class="error"></div>
+                <div id="columns"></div>
+                <button onclick="addColumn()">Add Column</button>
             </div>
-        </div>
-        <div id="food" class="tab-content">
-            <div class="card">
+            <div class="scenario-builder">
+                <h3>Step 2: Define Scenario</h3>
                 <div class="input-group">
-                    <label for="uploadSales">upload inventory data (csv)</label>
-                    <input type="file" id="uploadSales" accept=".csv">
-                    <div class="input-description">csv file with columns: <code>product_id</code>, <code>product_name</code>, <code>quantity_in_stock</code>, <code>expiration_date</code>, <code>production_date</code>, <code>sales_date</code>, <code>shelf_life_days</code>, <code>price_per_unit</code></div>
+                    <label for="scenario_name" class="tooltip">Scenario Name<span class="tooltiptext">Unique name for this scenario</span></label>
+                    <input type="text" id="scenario_name" placeholder="e.g., Baseline">
                 </div>
                 <div class="input-group">
-                    <label for="current_date">current date</label>
+                    <label for="current_date" class="tooltip">Current Date<span class="tooltiptext">Date for calculations (e.g., today)</span></label>
                     <input type="date" id="current_date">
-                    <div class="input-description">pick a date to use for calculations (e.g., today’s date)</div>
                 </div>
                 <div class="input-group">
-                    <label for="no_sales_threshold">no sales threshold (days)</label>
-                    <input type="number" id="no_sales_threshold" min="1" placeholder="e.g., 60">
-                    <div class="input-description">number of days without sales to mark stock as stagnant (e.g., 60 days)</div>
+                    <label for="product_id_col" class="tooltip">Product ID Column<span class="tooltiptext">Column with unique product identifiers</span></label>
+                    <select id="product_id_col"></select>
                 </div>
                 <div class="input-group">
-                    <label for="near_expiry_threshold">near expiry threshold (% of shelf life)</label>
-                    <select id="near_expiry_threshold">
-                        <option value="" disabled selected>select a percentage</option>
-                        <option value="5">5%</option>
-                        <option value="10">10%</option>
-                        <option value="15">15%</option>
-                        <option value="20">20%</option>
-                    </select>
-                    <div class="input-description">percentage of shelf life left to mark stock as nearing expiry (e.g., 10%)</div>
+                    <label for="product_name_col" class="tooltip">Product Name Column<span class="tooltiptext">Column with product names</span></label>
+                    <select id="product_name_col"></select>
                 </div>
-                <button onclick="analyzeFoodDeadStock()">analyze dead stock</button>
-                <div id="foodResults" class="results-section">
-                    <table class="result-table">
-                        <thead>
-                            <tr>
-                                <th>product id</th>
-                                <th>product name</th>
-                                <th>number of dead stock</th>
-                                <th>dead stock reason</th>
-                            </tr>
-                        </thead>
-                        <tbody id="foodResultsBody"></tbody>
-                    </table>
-                </div>
-                <div id="foodError" class="error"></div>
+                <div id="scenario_patterns"></div>
+                <button onclick="addScenarioPattern()">Add Data Pattern</button>
             </div>
-        </div>
-    </div>
-    <button class="chat-icon" onclick="openFeedbackModal()"><i class="fas fa-comment"></i></button>
-    <div id="feedbackPopup" class="feedback-popup">click the chat icon to share your feedback!</div>
-    <div id="feedbackModal" class="chat-modal">
-        <div class="chat-header">
-            stocksync assistant
-            <span class="chat-close" onclick="closeFeedbackModal()">×</span>
-        </div>
-        <div class="chat-messages" id="feedbackMessages"></div>
-        <div id="feedbackOptions" class="chat-options"></div>
-        <div class="chat-input" id="feedbackInput" style="display: none;">
-            <input type="text" id="feedbackText" placeholder="enter your feedback...">
-            <button onclick="submitFeedback()">send</button>
+            <div class="computed-field-builder">
+                <h3>Step 3: Define Computed Fields</h3>
+                <div id="computed_fields"></div>
+                <button onclick="addComputedField()">Add Computed Field</button>
+            </div>
+            <div class="condition-builder">
+                <h3>Step 4: Define Dead Stock Rules</h3>
+                <div id="conditions"></div>
+                <button onclick="addCondition()">Add Rule</button>
+            </div>
+            <div class="scenario-section">
+                <button onclick="saveScenario()">Save Scenario</button>
+                <div class="scenario-list" id="scenarioList"></div>
+            </div>
+            <div id="results" class="results-section">
+                <button onclick="downloadResults()">Download Results (CSV)</button>
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Product ID</th>
+                            <th>Product Name</th>
+                            <th>Dead Stock Count</th>
+                            <th>Dead Stock Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody"></tbody>
+                </table>
+            </div>
+            <div id="error" class="error"></div>
         </div>
     </div>
     <script>
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrrXMiwky4Yg6HPC62qgWnLQphejLpcIXPqKu2DY74TNBeqDaVPZJnMeO_jcsncP7_Qg/exec'; // Replace with your Google Apps Script Web App URL
+
+        let columns = [];
+        let computedFields = [];
+        let scenarioPatterns = [];
+        let scenarios = [];
+
+        // Helper function for normal distribution (Box-Muller transform)
+        function randomNormal(mean, sd) {
+            const u1 = Math.random();
+            const u2 = Math.random();
+            const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+            return z0 * sd + mean;
         }
 
-        function getMode(values) {
-            const frequency = {};
-            let maxFreq = 0;
-            let mode = values[0] || 'unknown';
-            values.forEach(value => {
-                frequency[value] = (frequency[value] || 0) + 1;
-                if (frequency[value] > maxFreq) {
-                    maxFreq = frequency[value];
-                    mode = value;
+        // Parse chained comparisons (e.g., "10 < @qty < 200" to "@qty > 10 && @qty < 200")
+        function parseChainedComparison(formula) {
+            const chainedMatch = formula.match(/([\d.]+)\s*<\s*@([a-zA-Z_][a-zA-Z0-9_]*)\s*<\s*([\d.]+)/);
+            if (chainedMatch) {
+                const [, lower, column, upper] = chainedMatch;
+                return `@${column} > ${lower} && @${column} < ${upper}`;
+            }
+            return formula;
+        }
+
+        // Remove @ prefix and convert logical operators
+        function preprocessFormula(formula) {
+            let processed = formula.replace(/@([a-zA-Z_][a-zA-Z0-9_]*)/g, '$1'); // Remove @ prefix
+            processed = processed.replace(/\bor\b/gi, '||'); // Replace 'or' with '||'
+            processed = processed.replace(/\band\b/gi, '&&'); // Replace 'and' with '&&'
+            return processed;
+        }
+
+        // Validate formula columns
+        function validateFormulaColumns(formula, availableColumns) {
+            const reservedWords = ['or', 'and', 'true', 'false', 'null', 'undefined', 'NaN'];
+            const cleanFormula = preprocessFormula(formula);
+            const columnsInFormula = cleanFormula.match(/[a-zA-Z_][a-zA-Z0-9_]*/g) || [];
+            for (let col of columnsInFormula) {
+                if (!reservedWords.includes(col) && !availableColumns.some(c => c.name === col) && !col.startsWith('days_since_')) {
+                    return `Formula references undefined column: ${col}`;
                 }
-            });
-            return mode || 'unknown';
+            }
+            return null;
         }
 
-        function getMostRecentDate(dates) {
-            const validDates = dates.map(d => new Date(d)).filter(d => !isNaN(d));
-            return validDates.length ? new Date(Math.max(...validDates)).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        // Evaluate formula with row context
+        function evaluateFormula(formula, row, currentDate, availableColumns, fieldType = 'number') {
+            try {
+                const parsedFormula = parseChainedComparison(formula);
+                const cleanFormula = preprocessFormula(parsedFormula);
+                const context = { ...row };
+                if (columns.some(c => c.type === 'date')) {
+                    const currentDateObj = new Date(currentDate);
+                    columns.forEach(col => {
+                        if (col.type === 'date') {
+                            const date = new Date(row[col.name]);
+                            if (!isNaN(date.getTime()) && !isNaN(currentDateObj.getTime())) {
+                                context[`days_since_${col.name}`] = Math.round((currentDateObj - date) / (1000 * 60 * 60 * 24));
+                            }
+                        }
+                    });
+                }
+                const validationError = validateFormulaColumns(parsedFormula, availableColumns);
+                if (validationError) throw new Error(validationError);
+                let safeFormula = cleanFormula.replace(/&&/g, '&&').replace(/\|\|/g, '||');
+                // Parse numeric values for non-boolean fields
+                if (fieldType !== 'boolean') {
+                    Object.keys(context).forEach(key => {
+                        if (!isNaN(parseFloat(context[key])) && context[key] !== '') {
+                            context[key] = parseFloat(context[key]);
+                        }
+                    });
+                }
+                const func = new Function(...Object.keys(context), `return ${safeFormula}`);
+                const result = func(...Object.values(context));
+                if (fieldType === 'boolean') {
+                    return !!result; // Ensure boolean output
+                }
+                return typeof result === 'number' ? result : !!result;
+            } catch (e) {
+                throw new Error(`Invalid formula: ${e.message}`);
+            }
         }
 
-        function processCSVFile(file, requiredHeaders) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const text = e.target.result;
-                    const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim()));
-                    const headers = rows[0].map(h => h.trim());
-                    if (!requiredHeaders.every(h => headers.includes(h))) {
-                        reject(new Error(`csv must include ${requiredHeaders.join(', ')}. column names are case-sensitive.`));
-                        return;
+        // Send results to Google Sheets via Apps Script Web App
+        async function sendToGoogleSheets(results) {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === 'YOUR_WEB_APP_URL_HERE') {
+                document.getElementById('error').textContent = 'Google Apps Script Web App URL is not configured.';
+                return false;
+            }
+            try {
+                for (const result of results) {
+                    const formData = new FormData();
+                    formData.append('Scenario', result.scenario);
+                    formData.append('ProductID', result.productId);
+                    formData.append('ProductName', result.productName);
+                    formData.append('DeadStockCount', result.deadStockCount);
+                    formData.append('DeadStockReason', result.deadStockReason);
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const responseData = await response.json();
+                    if (responseData.result !== 'success') {
+                        throw new Error(responseData.error || 'Failed to send data to Google Sheets');
                     }
-
-                    const data = rows.slice(1)
-                        .filter(row => row.length >= requiredHeaders.length && row.some(cell => cell))
-                        .map(row => {
-                            const obj = {};
-                            headers.forEach((header, idx) => {
-                                if (requiredHeaders.includes(header)) {
-                                    obj[header] = row[idx] || '';
-                                }
-                            });
-                            return obj;
-                        });
-
-                    if (data.length > 1000) {
-                        reject(new Error('upload limit exceeded. maximum 1000 records allowed.'));
-                        return;
-                    }
-
-                    resolve({ data, headers });
-                };
-                reader.onerror = () => reject(new Error('error reading file.'));
-                reader.readAsText(file);
-            });
+                }
+                return true;
+            } catch (e) {
+                document.getElementById('error').textContent = `Error sending to Google Sheets: ${e.message}`;
+                return false;
+            }
         }
 
-        async function analyzeDeadStock() {
+        // Initialize interface
+        function initializeInterface() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('scenarioList').innerHTML = '';
+            document.getElementById('resultsBody').innerHTML = '<tr><td colspan="5">No scenarios created yet</td></tr>';
+            document.getElementById('error').textContent = '';
+            addColumn();
+            addScenarioPattern();
+            addComputedField();
+            addCondition();
+            updateColumnSelectors();
+        }
+
+        function addColumn() {
             const errorDiv = document.getElementById('error');
-            const resultsDiv = document.getElementById('results');
-            const resultsBody = document.getElementById('resultsBody');
-            errorDiv.textContent = '';
-            resultsDiv.style.display = 'none';
-            resultsBody.innerHTML = '';
+            if (columns.length >= 20) {
+                errorDiv.textContent = 'Maximum 20 columns allowed.';
+                return;
+            }
+            const columnsDiv = document.getElementById('columns');
+            const columnRow = document.createElement('div');
+            columnRow.className = 'column-row';
+            columnRow.innerHTML = `
+                <input type="text" class="column-name" placeholder="Column name (e.g., qty)" oninput="updateColumnSelectors()">
+                <select class="column-type" onchange="updateColumnSelectors()">
+                    <option value="id">ID</option>
+                    <option value="name">Name</option>
+                    <option value="number">Number</option>
+                    <option value="date">Date</option>
+                </select>
+                <span class="remove-btn" onclick="this.parentElement.remove(); updateColumnSelectors()">&times;</span>
+            `;
+            columnsDiv.appendChild(columnRow);
+            updateColumnSelectors();
+        }
 
-            const salesFile = document.getElementById('uploadSales').files[0];
-            if (!salesFile) {
-                errorDiv.textContent = 'please upload a sales data file.';
+        function addScenarioPattern() {
+            const patternsDiv = document.getElementById('scenario_patterns');
+            const patternRow = document.createElement('div');
+            patternRow.className = 'scenario-row';
+            patternRow.innerHTML = `
+                <select class="pattern-column" onchange="updatePatternInputs(this)">
+                    <option value="" disabled selected>Select column</option>
+                </select>
+                <select class="pattern-type" onchange="updatePatternInputs(this)">
+                    <option value="normal">Normal Distribution</option>
+                    <option value="categorical">Categorical</option>
+                    <option value="uniform">Uniform (dates only)</option>
+                </select>
+                <div class="pattern-inputs">
+                    <input type="text" class="pattern-mean" placeholder="Mean (e.g., 50)">
+                    <input type="text" class="pattern-sd" placeholder="Std Dev (e.g., 10)">
+                </div>
+                <span class="remove-btn" onclick="this.parentElement.remove(); updateColumnSelectors()">&times;</span>
+            `;
+            patternsDiv.appendChild(patternRow);
+            updateColumnSelectors();
+        }
+
+        function addComputedField() {
+            const computedFieldsDiv = document.getElementById('computed_fields');
+            const computedFieldRow = document.createElement('div');
+            computedFieldRow.className = 'computed-field-row';
+            computedFieldRow.innerHTML = `
+                <input type="text" class="computed-field-name" placeholder="Field name (e.g., is_low_stock)" oninput="updateColumnSelectors()">
+                <select class="computed-field-type">
+                    <option value="number">Number</option>
+                    <option value="boolean">Boolean</option>
+                </select>
+                <input type="text" class="computed-field-formula formula-input" placeholder="e.g., @qty * @rate or @qty < 10">
+                <span class="remove-btn" onclick="this.parentElement.remove(); updateColumnSelectors()">&times;</span>
+            `;
+            computedFieldsDiv.appendChild(computedFieldRow);
+            updateColumnSelectors();
+        }
+
+        function addCondition() {
+            const conditionsDiv = document.getElementById('conditions');
+            const conditionRow = document.createElement('div');
+            conditionRow.className = 'condition-row';
+            conditionRow.innerHTML = `
+                <input type="text" class="condition-formula formula-input" placeholder="e.g., @qty > 10 or @is_low_stock">
+                <input type="text" class="condition-suggestion" placeholder="Suggestion (e.g., Low stock)">
+                <span class="remove-btn" onclick="this.parentElement.remove(); updateColumnSelectors()">&times;</span>
+            `;
+            conditionsDiv.appendChild(conditionRow);
+            updateColumnSelectors();
+        }
+
+        function updatePatternInputs(select) {
+            const row = select.parentElement;
+            const columnName = row.querySelector('.pattern-column').value;
+            const column = columns.find(c => c.name === columnName);
+            const patternType = row.querySelector('.pattern-type').value;
+            const patternInputDiv = row.querySelector('.pattern-inputs');
+            if (!column) {
+                patternInputDiv.innerHTML = '';
+                return;
+            }
+            if (column.type === 'date' || patternType === 'uniform') {
+                patternInputDiv.innerHTML = `
+                    <input type="text" class="pattern-min" placeholder="Min date (optional)">
+                    <input type="text" class="pattern-max" placeholder="Max date (optional)">
+                `;
+            } else if (patternType === 'normal' && column.type === 'number') {
+                patternInputDiv.innerHTML = `
+                    <input type="text" class="pattern-mean" placeholder="Mean (e.g., 50)">
+                    <input type="text" class="pattern-sd" placeholder="Std Dev (e.g., 10)">
+                `;
+            } else if (patternType === 'categorical' && (column.type === 'id' || column.type === 'name')) {
+                patternInputDiv.innerHTML = `
+                    <input type="text" class="pattern-values" placeholder="Values:Probabilities (e.g., A:0.5,B:0.3,C:0.2)">
+                `;
+            } else {
+                patternInputDiv.innerHTML = '<span style="color: red;">Invalid pattern for column type</span>';
+            }
+        }
+
+        function updateColumnSelectors() {
+            const errorDiv = document.getElementById('error');
+            columns = Array.from(document.getElementsByClassName('column-row')).map(row => ({
+                name: row.querySelector('.column-name').value.trim(),
+                type: row.querySelector('.column-type').value
+            })).filter(col => col.name);
+
+            const columnNames = columns.map(col => col.name);
+            const duplicates = columnNames.filter((name, index) => columnNames.indexOf(name) !== index);
+            if (duplicates.length > 0) {
+                errorDiv.textContent = `Duplicate column names detected: ${duplicates.join(', ')}`;
                 return;
             }
 
-            try {
-                const { data } = await processCSVFile(salesFile, ['stock_id', 'product_name', 'sales_date']);
-                const today = new Date();
-                const products = {};
+            computedFields = Array.from(document.getElementsByClassName('computed-field-row')).map(row => ({
+                name: row.querySelector('.computed-field-name').value.trim(),
+                type: row.querySelector('.computed-field-type').value,
+                formula: row.querySelector('.computed-field-formula').value.trim()
+            })).filter(field => field.name && field.formula);
 
-                data.forEach(sale => {
-                    if (!products[sale.stock_id]) {
-                        products[sale.stock_id] = {
-                            product_name: sale.product_name,
-                            last_sale_date: sale.sales_date
-                        };
+            scenarioPatterns = Array.from(document.getElementsByClassName('scenario-row')).map(row => {
+                const column = row.querySelector('.pattern-column').value;
+                const type = row.querySelector('.pattern-type').value;
+                const pattern = { column, type };
+                if (type === 'normal') {
+                    pattern.mean = row.querySelector('.pattern-mean')?.value.trim();
+                    pattern.sd = row.querySelector('.pattern-sd')?.value.trim();
+                } else if (type === 'categorical') {
+                    pattern.values = row.querySelector('.pattern-values')?.value.trim();
+                } else if (type === 'uniform') {
+                    pattern.min = row.querySelector('.pattern-min')?.value.trim();
+                    pattern.max = row.querySelector('.pattern-max')?.value.trim();
+                }
+                return pattern;
+            }).filter(pattern => pattern.column);
+
+            const selectors = ['product_id_col', 'product_name_col'];
+            selectors.forEach(selector => {
+                const select = document.getElementById(selector);
+                const currentValue = select.value;
+                select.innerHTML = '<option value="" disabled selected>Select a column</option>';
+                if (columns.length === 0) {
+                    errorDiv.textContent = 'No columns defined. Please add at least one column.';
+                    return;
+                }
+                columns.forEach(col => {
+                    const option = document.createElement('option');
+                    option.value = col.name;
+                    option.textContent = col.name;
+                    if (col.name === currentValue) option.selected = true;
+                    select.appendChild(option);
+                });
+            });
+
+            const patternColumns = document.getElementsByClassName('pattern-column');
+            Array.from(patternColumns).forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="" disabled selected>Select column</option>';
+                columns.forEach(col => {
+                    const option = document.createElement('option');
+                    option.value = col.name;
+                    option.textContent = col.name;
+                    if (col.name === currentValue) option.selected = true;
+                    select.appendChild(option);
+                });
+                updatePatternInputs(select);
+            });
+
+            if (columns.length === 0) {
+                errorDiv.textContent = 'No columns defined. Please add at least one column.';
+            } else {
+                errorDiv.textContent = '';
+            }
+        }
+
+        function validateInputs() {
+            const errorDiv = document.getElementById('error');
+            const rowCount = parseInt(document.getElementById('row_count').value) || 0;
+            const dateRangeStart = document.getElementById('date_range_start').value;
+            const dateRangeEnd = document.getElementById('date_range_end').value;
+            const scenarioName = document.getElementById('scenario_name').value.trim();
+            const currentDate = document.getElementById('current_date').value;
+            const productIdCol = document.getElementById('product_id_col').value;
+            const productNameCol = document.getElementById('product_name_col').value;
+
+            if (rowCount < 1 || rowCount > 1000) {
+                errorDiv.textContent = 'Number of products must be between 1 and 1000.';
+                return false;
+            }
+            if (!dateRangeStart || !dateRangeEnd) {
+                errorDiv.textContent = 'Please specify date range start and end.';
+                return false;
+            }
+            if (new Date(dateRangeStart) > new Date(dateRangeEnd)) {
+                errorDiv.textContent = 'Start date must be before end date.';
+                return false;
+            }
+            if (columns.length === 0) {
+                errorDiv.textContent = 'Please define at least one column.';
+                return false;
+            }
+            if (columns.length > 20) {
+                errorDiv.textContent = 'Maximum 20 columns allowed.';
+                return false;
+            }
+            const columnNames = columns.map(col => col.name);
+            const duplicates = columnNames.filter((name, index) => columnNames.indexOf(name) !== index);
+            if (duplicates.length > 0) {
+                errorDiv.textContent = `Duplicate column names detected: ${duplicates.join(', ')}`;
+                return false;
+            }
+            if (!scenarioName) {
+                errorDiv.textContent = 'Please enter a scenario name.';
+                return false;
+            }
+            if (!currentDate) {
+                errorDiv.textContent = 'Please select a current date.';
+                return false;
+            }
+            if (!productIdCol || !productNameCol) {
+                errorDiv.textContent = 'Please select product ID and name columns.';
+                return false;
+            }
+            if (scenarios.some(s => s.name === scenarioName)) {
+                errorDiv.textContent = 'Scenario name must be unique.';
+                return false;
+            }
+            if (scenarios.length >= 5) {
+                errorDiv.textContent = 'Maximum 5 scenarios allowed. Delete one to add a new scenario.';
+                return false;
+            }
+
+            for (let pattern of scenarioPatterns) {
+                const column = columns.find(c => c.name === pattern.column);
+                if (!column) {
+                    errorDiv.textContent = `Pattern references invalid column: ${pattern.column}`;
+                    return false;
+                }
+                if (pattern.type === 'normal' && column.type === 'number') {
+                    const mean = parseFloat(pattern.mean);
+                    const sd = parseFloat(pattern.sd);
+                    if (isNaN(mean)) {
+                        errorDiv.textContent = `Invalid mean for column ${pattern.column}`;
+                        return false;
+                    }
+                    if (isNaN(sd) || sd <= 0) {
+                        errorDiv.textContent = `Standard deviation for column ${pattern.column} must be positive`;
+                        return false;
+                    }
+                } else if (pattern.type === 'categorical' && (column.type === 'id' || column.type === 'name')) {
+                    if (!pattern.values) {
+                        errorDiv.textContent = `Categorical values for column ${pattern.column} cannot be empty`;
+                        return false;
+                    }
+                    const pairs = pattern.values.split(',').map(v => v.trim());
+                    let totalProb = 0;
+                    for (let pair of pairs) {
+                        const [value, prob] = pair.split(':').map(v => v.trim());
+                        if (!value || isNaN(parseFloat(prob)) || parseFloat(prob) < 0) {
+                            errorDiv.textContent = `Invalid value:probability pair for column ${pattern.column}: ${pair}`;
+                            return false;
+                        }
+                        totalProb += parseFloat(prob);
+                    }
+                    if (Math.abs(totalProb - 1) > 0.01) {
+                        errorDiv.textContent = `Probabilities for column ${pattern.column} must sum to 1`;
+                        return false;
+                    }
+                } else if (pattern.type === 'uniform' && column.type === 'date') {
+                    if (pattern.min && isNaN(Date.parse(pattern.min))) {
+                        errorDiv.textContent = `Invalid min date for column ${pattern.column}`;
+                        return false;
+                    }
+                    if (pattern.max && isNaN(Date.parse(pattern.max))) {
+                        errorDiv.textContent = `Invalid max date for column ${pattern.column}`;
+                        return false;
+                    }
+                } else {
+                    errorDiv.textContent = `Invalid pattern type ${pattern.type} for column ${pattern.column} (${column.type})`;
+                    return false;
+                }
+            }
+
+            for (let field of computedFields) {
+                const error = validateFormulaColumns(field.formula, columns);
+                if (error) {
+                    errorDiv.textContent = `Computed field ${field.name}: ${error}`;
+                    return false;
+                }
+            }
+
+            const conditions = Array.from(document.getElementsByClassName('condition-row')).map(row => ({
+                formula: row.querySelector('.condition-formula').value.trim(),
+                suggestion: row.querySelector('.condition-suggestion').value.trim() || 'Dead stock condition'
+            }));
+            for (let cond of conditions) {
+                if (!cond.formula) {
+                    errorDiv.textContent = 'Please provide a formula for all rules.';
+                    return false;
+                }
+                const error = validateFormulaColumns(cond.formula, [...columns, ...computedFields]);
+                if (error) {
+                    errorDiv.textContent = `Rule formula: ${error}`;
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function generateData() {
+            const errorDiv = document.getElementById('error');
+            if (!validateInputs()) return null;
+
+            const rowCount = parseInt(document.getElementById('row_count').value) || 100;
+            const dateRangeStart = new Date(document.getElementById('date_range_start').value || '2024-01-01');
+            const dateRangeEnd = new Date(document.getElementById('date_range_end').value || new Date());
+
+            const data = [];
+            for (let i = 0; i < rowCount; i++) {
+                const row = {};
+                columns.forEach(col => {
+                    let value;
+                    const pattern = scenarioPatterns.find(p => p.column === col.name);
+                    if (pattern) {
+                        if (pattern.type === 'normal' && col.type === 'number') {
+                            const mean = parseFloat(pattern.mean);
+                            const sd = parseFloat(pattern.sd);
+                            value = randomNormal(mean, sd).toFixed(2);
+                        } else if (pattern.type === 'categorical' && (col.type === 'id' || col.type === 'name')) {
+                            const pairs = pattern.values.split(',').map(v => v.trim());
+                            const values = pairs.map(p => p.split(':')[0]);
+                            const probs = pairs.map(p => parseFloat(p.split(':')[1]));
+                            let rand = Math.random();
+                            let cumulative = 0;
+                            for (let j = 0; j < probs.length; j++) {
+                                cumulative += probs[j];
+                                if (rand <= cumulative) {
+                                    value = values[j];
+                                    break;
+                                }
+                            }
+                        } else if (pattern.type === 'uniform' && col.type === 'date') {
+                            const minDate = pattern.min ? new Date(pattern.min) : dateRangeStart;
+                            const maxDate = pattern.max ? new Date(pattern.max) : dateRangeEnd;
+                            const timeRange = maxDate - minDate;
+                            const randomTime = minDate.getTime() + Math.random() * timeRange;
+                            value = new Date(randomTime).toISOString().split('T')[0];
+                        } else {
+                            value = '';
+                        }
                     } else {
-                        const currentDate = new Date(sale.sales_date);
-                        const lastDate = new Date(products[sale.stock_id].last_sale_date);
-                        if (currentDate > lastDate) {
-                            products[sale.stock_id].last_sale_date = sale.sales_date;
+                        if (col.type === 'id') value = `ID_${i + 1}`;
+                        else if (col.type === 'name') value = `Product_${i + 1}`;
+                        else if (col.type === 'number') value = (Math.random() * 100).toFixed(2);
+                        else if (col.type === 'date') {
+                            const timeRange = dateRangeEnd - dateRangeStart;
+                            const randomTime = dateRangeStart.getTime() + Math.random() * timeRange;
+                            value = new Date(randomTime).toISOString().split('T')[0];
                         }
                     }
+                    row[col.name] = value;
                 });
+                data.push(row);
+            }
 
-                let tableHTML = '';
-                for (const [stockId, data] of Object.entries(products)) {
-                    const lastSaleDate = new Date(data.last_sale_date);
-                    const daysSinceLastSale = Math.round((today - lastSaleDate) / (1000 * 60 * 60 * 24));
-                    const isDead = daysSinceLastSale > 90;
-                    tableHTML += `
-                        <tr>
-                            <td>${stockId}</td>
-                            <td>${data.product_name}</td>
-                            <td>${daysSinceLastSale}</td>
-                            <td class="${isDead ? 'red' : ''}">${isDead ? 'dead stock' : 'active'}</td>
-                        </tr>
-                    `;
+            // Compute fields
+            computedFields.forEach(field => {
+                data.forEach(row => {
+                    try {
+                        let result = evaluateFormula(field.formula, row, document.getElementById('current_date').value, columns, field.type);
+                        if (field.type === 'boolean') {
+                            row[field.name] = result ? 'Yes' : 'No'; // Format boolean as Yes/No
+                        } else {
+                            row[field.name] = result;
+                        }
+                    } catch (e) {
+                        errorDiv.textContent = `Error in computed field ${field.name}: ${e.message}`;
+                        return null;
+                    }
+                });
+            });
+
+            return data;
+        }
+
+        async function saveScenario() {
+            const errorDiv = document.getElementById('error');
+            if (!validateInputs()) return;
+
+            const scenarioName = document.getElementById('scenario_name').value.trim();
+            const currentDate = document.getElementById('current_date').value;
+            const productIdCol = document.getElementById('product_id_col').value;
+            const productNameCol = document.getElementById('product_name_col').value;
+
+            const conditions = Array.from(document.getElementsByClassName('condition-row')).map(row => ({
+                formula: row.querySelector('.condition-formula').value.trim(),
+                suggestion: row.querySelector('.condition-suggestion').value.trim() || 'Dead stock condition'
+            }));
+
+            const data = generateData();
+            if (!data) return;
+
+            let results = [];
+            data.forEach(row => {
+                let deadStockReason = '';
+                let deadStockCount = 0;
+                for (let cond of conditions) {
+                    try {
+                        const result = evaluateFormula(cond.formula, row, currentDate, [...columns, ...computedFields], 'boolean');
+                        if (result) {
+                            const cleanFormula = preprocessFormula(cond.formula);
+                            const referencedColumns = cleanFormula.match(/[a-zA-Z_][a-zA-Z0-9_]*/g) || [];
+                            const primaryColumn = referencedColumns.find(col => 
+                                [...columns, ...computedFields].some(c => c.name === col)
+                            );
+                            if (primaryColumn && row[primaryColumn] && !isNaN(parseFloat(row[primaryColumn]))) {
+                                deadStockCount = parseFloat(row[primaryColumn]);
+                            } else {
+                                deadStockCount = 1;
+                            }
+                            deadStockReason = cond.suggestion;
+                            break;
+                        }
+                    } catch (e) {
+                        errorDiv.textContent = `Rule error: ${e.message}`;
+                        return;
+                    }
                 }
 
-                resultsBody.innerHTML = tableHTML;
-                resultsDiv.style.display = 'block';
-            } catch (err) {
-                errorDiv.textContent = err.message;
-            }
-        }
+                if (deadStockReason) {
+                    results.push({
+                        scenario: scenarioName,
+                        productId: row[productIdCol],
+                        productName: row[productNameCol],
+                        deadStockCount,
+                        deadStockReason
+                    });
+                }
+            });
 
-        async function analyzeFoodDeadStock() {
-            const errorDiv = document.getElementById('foodError');
-            const resultsDiv = document.getElementById('foodResults');
-            const resultsBody = document.getElementById('foodResultsBody');
-            errorDiv.textContent = '';
-            resultsDiv.style.display = 'none';
+            // Send results to Google Sheets
+            const sentToSheets = await sendToGoogleSheets(results);
+            if (!sentToSheets) return;
+
+            scenarios.push({
+                name: scenarioName,
+                data,
+                results,
+                columns,
+                computedFields,
+                scenarioPatterns,
+                conditions,
+                productIdCol,
+                productNameCol
+            });
+
+            const scenarioList = document.getElementById('scenarioList');
+            scenarioList.innerHTML = '';
+            scenarios.forEach((scenario, index) => {
+                const scenarioItem = document.createElement('div');
+                scenarioItem.className = 'scenario-item';
+                scenarioItem.innerHTML = `
+                    ${scenario.name}
+                    <button onclick="deleteScenario(${index})">Delete</button>
+                `;
+                scenarioList.appendChild(scenarioItem);
+            });
+
+            document.getElementById('results').style.display = 'block';
+            const resultsBody = document.getElementById('resultsBody');
             resultsBody.innerHTML = '';
-
-            const foodFile = document.getElementById('uploadSales').files[0];
-            const currentDateInput = document.getElementById('current_date').value;
-            const noSalesThreshold = parseInt(document.getElementById('no_sales_threshold').value);
-            const nearExpiryThreshold = parseFloat(document.getElementById('near_expiry_threshold').value) / 100;
-
-            if (!foodFile) {
-                errorDiv.textContent = 'please upload an inventory data file.';
-                return;
-            }
-            if (!currentDateInput) {
-                errorDiv.textContent = 'please select a current date.';
-                return;
-            }
-            if (!noSalesThreshold || noSalesThreshold < 1) {
-                errorDiv.textContent = 'please enter a valid no sales threshold (minimum 1 day).';
-                return;
-            }
-            if (!nearExpiryThreshold) {
-                errorDiv.textContent = 'please select a near expiry threshold percentage.';
-                return;
-            }
-
-            try {
-                const requiredHeaders = ['product_id', 'product_name', 'quantity_in_stock', 'expiration_date', 'production_date', 'sales_date', 'shelf_life_days', 'price_per_unit'];
-                const { data } = await processCSVFile(foodFile, requiredHeaders);
-                const currentDate = new Date(currentDateInput);
-
-                // Calculate Days Since Production and Days Until Expiry
-                data.forEach(row => {
-                    const productionDate = new Date(row['production_date']);
-                    const expirationDate = new Date(row['expiration_date']);
-                    row['days_since_production'] = Math.round((currentDate - productionDate) / (1000 * 60 * 60 * 24));
-                    row['days_until_expiry'] = Math.round((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
-                });
-
-                // Expired Stock
-                const expiredStock = data.filter(row => row['days_until_expiry'] < 0 && parseFloat(row['quantity_in_stock']) > 0)
-                    .map(row => ({ ...row, 'dead_stock_reason': 'expired' }));
-
-                // Current Stock Snapshot (most recent by sales_date)
-                const productMap = {};
-                data.sort((a, b) => new Date(b['sales_date']) - new Date(a['sales_date'])).forEach(row => {
-                    if (!productMap[row['product_id']]) {
-                        productMap[row['product_id']] = { ...row };
-                    }
-                });
-                const currentStockSnapshot = Object.values(productMap).map(row => ({
-                    'product_id': row['product_id'],
-                    'product_name': row['product_name'],
-                    'quantity_in_stock': row['quantity_in_stock'],
-                    'expiration_date': row['expiration_date'],
-                    'production_date': row['production_date'],
-                    'last_sale_date': row['sales_date'],
-                    'shelf_life_days': row['shelf_life_days'],
-                    'price_per_unit': row['price_per_unit'],
-                    'days_since_last_sale': Math.round((currentDate - new Date(row['sales_date'])) / (1000 * 60 * 60 * 24)),
-                    'days_until_expiry': row['days_until_expiry']
-                }));
-
-                // Stagnant Stock
-                const stagnantStock = currentStockSnapshot.filter(row => 
-                    parseFloat(row['quantity_in_stock']) > 0 &&
-                    row['days_since_last_sale'] > noSalesThreshold &&
-                    row['days_until_expiry'] >= 0
-                ).map(row => ({ ...row, 'dead_stock_reason': 'stagnant (no recent sales)' }));
-
-                // Soon-to-Expire Stock
-                const soonToExpireStock = currentStockSnapshot.filter(row => 
-                    parseFloat(row['quantity_in_stock']) > 0 &&
-                    row['days_until_expiry'] >= 0 &&
-                    row['days_until_expiry'] <= parseFloat(row['shelf_life_days']) * nearExpiryThreshold &&
-                    !expiredStock.some(exp => exp['product_id'] === row['product_id'])
-                ).map(row => ({ ...row, 'dead_stock_reason': 'nearing expiry' }));
-
-                // Combine and Summarize by Product
-                const deadStock = [...expiredStock, ...stagnantStock, ...soonToExpireStock];
-                const productSummary = {};
-
-                deadStock.forEach(row => {
-                    const productId = row['product_id'];
-                    if (!productSummary[productId]) {
-                        productSummary[productId] = {
-                            'product_id': productId,
-                            'product_name': row['product_name'],
-                            'number_of_dead_stock': 0,
-                            'dead_stock_reasons': new Set()
-                        };
-                    }
-                    productSummary[productId]['number_of_dead_stock'] += 1;
-                    productSummary[productId]['dead_stock_reasons'].add(row['dead_stock_reason']);
-                });
-
-                // Generate Table
-                let tableHTML = '';
-                Object.values(productSummary).forEach(row => {
-                    const reasons = Array.from(row['dead_stock_reasons']).join(', ');
-                    tableHTML += `
-                        <tr>
-                            <td>${row['product_id']}</td>
-                            <td>${row['product_name']}</td>
-                            <td>${row['number_of_dead_stock']}</td>
-                            <td class="red">${reasons}</td>
-                        </tr>
+            if (results.length === 0) {
+                resultsBody.innerHTML = '<tr><td colspan="5">No dead stock found</td></tr>';
+            } else {
+                results.forEach(result => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${result.scenario}</td>
+                        <td>${result.productId}</td>
+                        <td>${result.productName}</td>
+                        <td class="${result.deadStockCount > 0 ? 'red' : ''}">${result.deadStockCount}</td>
+                        <td>${result.deadStockReason}</td>
                     `;
+                    resultsBody.appendChild(row);
                 });
+            }
 
-                resultsBody.innerHTML = tableHTML;
-                resultsDiv.style.display = 'block';
-            } catch (err) {
-                errorDiv.textContent = err.message;
+            errorDiv.textContent = 'Scenario saved successfully and sent to Google Sheets!';
+            setTimeout(() => { errorDiv.textContent = ''; }, 3000);
+        }
+
+        function deleteScenario(index) {
+            scenarios.splice(index, 1);
+            const scenarioList = document.getElementById('scenarioList');
+            scenarioList.innerHTML = '';
+            scenarios.forEach((scenario, i) => {
+                const scenarioItem = document.createElement('div');
+                scenarioItem.className = 'scenario-item';
+                scenarioItem.innerHTML = `
+                    ${scenario.name}
+                    <button onclick="deleteScenario(${i})">Delete</button>
+                `;
+                scenarioList.appendChild(scenarioItem);
+            });
+
+            const resultsBody = document.getElementById('resultsBody');
+            resultsBody.innerHTML = '';
+            scenarios.forEach(scenario => {
+                scenario.results.forEach(result => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${result.scenario}</td>
+                        <td>${result.productId}</td>
+                        <td>${result.productName}</td>
+                        <td class="${result.deadStockCount > 0 ? 'red' : ''}">${result.deadStockCount}</td>
+                        <td>${result.deadStockReason}</td>
+                    `;
+                    resultsBody.appendChild(row);
+                });
+            });
+            if (scenarios.length === 0) {
+                document.getElementById('results').style.display = 'none';
+                resultsBody.innerHTML = '<tr><td colspan="5">No scenarios created yet</td></tr>';
             }
         }
 
-        function openFeedbackModal() {
-            document.getElementById('feedbackModal').style.display = 'flex';
-            document.getElementById('feedbackMessages').innerHTML = '<div class="bot-message">hello! i’m stocksync assistant. how can i assist you today? please select a feedback type.</div>';
-            showFeedbackOptions();
-            document.getElementById('feedbackPopup').style.display = 'none';
-        }
-
-        function closeFeedbackModal() {
-            document.getElementById('feedbackModal').style.display = 'none';
-            document.getElementById('feedbackText').value = '';
-            document.getElementById('feedbackOptions').style.display = 'block';
-            document.getElementById('feedbackInput').style.display = 'none';
-        }
-
-        function addMessage(text, isUser) {
-            const messagesDiv = document.getElementById('feedbackMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.textContent = text;
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-
-        function showFeedbackOptions() {
-            const options = ['feature feedback', 'bug report', 'suggestion'];
-            const optionsDiv = document.getElementById('feedbackOptions');
-            optionsDiv.innerHTML = '';
-            options.forEach(option => {
-                const button = document.createElement('div');
-                button.className = 'chat-option';
-                button.textContent = option;
-                button.onclick = () => selectFeedbackType(option);
-                optionsDiv.appendChild(button);
-            });
-        }
-
-        function selectFeedbackType(type) {
-            document.getElementById('feedbackOptions').style.display = 'none';
-            document.getElementById('feedbackInput').style.display = 'flex';
-            addMessage(`you selected: ${type}. please enter your feedback.`, false);
-            document.getElementById('feedbackText').focus();
-        }
-
-        function submitFeedback() {
-            const feedbackText = document.getElementById('feedbackText').value.trim();
-            if (!feedbackText) {
-                addMessage('please enter some feedback before submitting.', false);
+        function downloadResults() {
+            if (scenarios.length === 0) {
+                document.getElementById('error').textContent = 'No scenarios to download.';
                 return;
             }
 
-            const messages = document.getElementById('feedbackMessages').getElementsByClassName('bot-message');
-            const lastMessage = messages[messages.length - 1]?.textContent;
-            const selectedType = lastMessage ? lastMessage.match(/you selected: (.*)\. please/)?.[1] : 'feature feedback';
-
-            const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSc8oS9zypHSsDpyDW4rmV64JiNClIV4k7_slF-4xeK1DCx0Ug/formResponse';
-            const feedbackTypeId = 'entry.919009780';
-            const feedbackTextId = 'entry.1808344821';
-
-            const formData = new FormData();
-            formData.append(feedbackTypeId, selectedType);
-            formData.append(feedbackTextId, feedbackText);
-
-            console.log('submitting data:', { feedbackType: selectedType, feedbackText });
-            fetch(formUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: formData
-            })
-            .then(() => {
-                addMessage('thank you! your feedback has been submitted.', false);
-                setTimeout(closeFeedbackModal, 2000);
-            })
-            .catch(error => {
-                console.error('feedback submission error:', error);
-                addMessage('sorry, there was an issue submitting your feedback. please try again later.', false);
+            let csvContent = 'Scenario,Product ID,Product Name,Dead Stock Count,Dead Stock Reason\n';
+            scenarios.forEach(scenario => {
+                scenario.results.forEach(result => {
+                    csvContent += `"${result.scenario}","${result.productId}","${result.productName}",${result.deadStockCount},"${result.deadStockReason}"\n`;
+                });
             });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'stocksync_results.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-        function showFeedbackPopup() {
-            const popup = document.getElementById('feedbackPopup');
-            popup.style.display = 'block';
-            setTimeout(() => {
-                popup.style.display = 'none';
-            }, 5000);
-        }
+        // Initialize on page load
+        initializeInterface();
     </script>
 </body>
 </html>
